@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { signinFetch, signupFetch } from "../../api/user";
+import { useDispatch } from "react-redux";
 
 const SignupSchema = Yup.object().shape({
   email: Yup.string().email("Укажите валидную почту").required("Required"),
@@ -18,6 +19,7 @@ const SignupSchema = Yup.object().shape({
 
 export const Signup = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const initialValues = {
     password: "",
     email: "",
@@ -35,8 +37,13 @@ export const Signup = () => {
       const res = await signinFetch(values);
       if (res.ok) {
         const responce = await res.json();
-        localStorage.setItem("token", responce.token);
-        return navigate("/products");
+        dispatch(
+          setUser({
+            ...responce.data,
+            token: responce.token,
+          })
+        );
+        return navigate("/");
       }
 
       return alert("Что то пошло не так");
